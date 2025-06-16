@@ -109,7 +109,6 @@ local function sendPayload()
 
 	task.wait(0.5)
 
-	-- Intenta detectar si algo se ejecutó (por ejemplo un objeto creado)
 	local found = false
 	for _, v in ipairs(Workspace:GetChildren()) do
 		if v.Name == "Test" or v.Name:match("^RemoteTest_") then
@@ -130,7 +129,7 @@ closeButton.MouseButton1Click:Connect(function()
 	gui:Destroy()
 end)
 
--- 🖱️ Hacer que se pueda arrastrar la ventana usando el título
+-- Hacer la ventana arrastrable con mouse o dedo (PC y móvil)
 local dragging = false
 local dragInput, dragStart, startPos
 
@@ -145,7 +144,7 @@ local function update(input)
 end
 
 title.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		dragging = true
 		dragStart = input.Position
 		startPos = frame.Position
@@ -159,7 +158,7 @@ title.InputBegan:Connect(function(input)
 end)
 
 title.InputChanged:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseMovement then
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 		dragInput = input
 	end
 end)
